@@ -1,13 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import {
-  Plus,
-  FileText,
-  Mail,
-  PenLine,
-  Briefcase,
-  Calendar,
-} from 'lucide-react-native';
+import { PlusIcon, ResumeIcon, EmailIcon, CoverLetterIcon, ApplicationIcon, CalendarIcon } from '@/components/ui/icons';
 import { ScreenContainer } from '@/components/layout/ScreenContainer';
 import { QuickAction } from '@/components/home/QuickAction';
 import { ActivityRow } from '@/components/home/ActivityRow';
@@ -75,14 +68,14 @@ export default function HomeScreen() {
           <SectionHeader title="Applications" />
           <View style={styles.statsRow}>
             <Card style={styles.statCard}>
-              <Briefcase size={18} color={colors.accent} />
+              <ApplicationIcon size={18} color={colors.accent} />
               <Text style={[styles.statValue, { color: colors.text }]}>
                 {overview.activeCount}
               </Text>
               <Text style={[styles.statLabel, { color: colors.textMuted }]}>Active</Text>
             </Card>
             <Card style={styles.statCard}>
-              <Calendar size={18} color={colors.success} />
+              <CalendarIcon size={18} color={colors.success} />
               <Text style={[styles.statValue, { color: colors.text }]}>
                 {overview.interviewCount}
               </Text>
@@ -95,22 +88,22 @@ export default function HomeScreen() {
           <SectionHeader title="Quick Actions" />
           <View style={styles.quickActions}>
             <QuickAction
-              icon={<Plus size={18} color={colors.accent} />}
+              icon={<PlusIcon size={18} color={colors.accent} />}
               label="New Application"
               onPress={() => router.push('/applications/new')}
             />
             <QuickAction
-              icon={<FileText size={18} color={colors.accent} />}
+              icon={<ResumeIcon size={18} color={colors.accent} />}
               label="Open Resume"
               onPress={() => router.push('/(tabs)/resume')}
             />
             <QuickAction
-              icon={<PenLine size={18} color={colors.accent} />}
+              icon={<CoverLetterIcon size={18} color={colors.accent} />}
               label="Create Cover Letter"
               onPress={() => router.push('/cover-letter/create')}
             />
             <QuickAction
-              icon={<Mail size={18} color={colors.accent} />}
+              icon={<EmailIcon size={18} color={colors.accent} />}
               label="Prepare Email"
               onPress={() => router.push('/email/prepare')}
             />

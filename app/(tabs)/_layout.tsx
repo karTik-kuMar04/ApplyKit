@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Home, FileText, Briefcase, LayoutTemplate, Settings } from 'lucide-react-native';
+import { HomeIcon, ResumeIcon, ApplicationIcon, TemplateIcon, SettingsIcon } from '@/components/ui/icons';
 import { useColors } from '@/lib/theme';
 import { componentSizes, typography } from '@/lib/theme/tokens';
 
@@ -29,35 +29,35 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <HomeIcon size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="resume"
         options={{
           title: 'Resume',
-          tabBarIcon: ({ color, size }) => <FileText size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <ResumeIcon size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="applications"
         options={{
           title: 'Applications',
-          tabBarIcon: ({ color, size }) => <Briefcase size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <ApplicationIcon size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="templates"
         options={{
           title: 'Templates',
-          tabBarIcon: ({ color, size }) => <LayoutTemplate size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <TemplateIcon size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <SettingsIcon size={size} color={color} />,
         }}
       />
     </Tabs>

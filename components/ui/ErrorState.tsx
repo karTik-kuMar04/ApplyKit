@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { AlertCircle } from 'lucide-react-native';
+import { ErrorIcon } from '@/components/ui/icons';
 import { useColors } from '@/lib/theme';
 import { spacing, typography } from '@/lib/theme/tokens';
 import { Button } from './Button';
@@ -19,7 +19,7 @@ export function ErrorState({
 
   return (
     <View style={styles.container} accessibilityRole="alert">
-      <AlertCircle size={32} color={colors.error} />
+      <ErrorIcon size={32} color={colors.error} />
       <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
       <Text style={[styles.message, { color: colors.textMuted }]}>{message}</Text>
       {onRetry && <Button title="Try again" onPress={onRetry} variant="secondary" />}

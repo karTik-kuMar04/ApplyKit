@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { useColors } from '@/lib/theme';
 import { radius, spacing, typography } from '@/lib/theme/tokens';
-import { FileText } from 'lucide-react-native';
+import { ResumeIcon } from '@/components/ui/icons';
 
 interface ResumePreviewPlaceholderProps {
   fileName: string;
@@ -15,7 +15,7 @@ export function ResumePreviewPlaceholder({ fileName, pageCount }: ResumePreviewP
     <View style={[styles.container, { backgroundColor: colors.borderSubtle, borderColor: colors.border }]}>
       <View style={[styles.page, { backgroundColor: colors.surface }]}>
         <View style={[styles.header, { backgroundColor: colors.accentMuted }]}>
-          <FileText size={24} color={colors.accent} />
+          <ResumeIcon size={24} color={colors.accent} />
         </View>
         <View style={styles.lines}>
           {[0.9, 0.7, 0.85, 0.6, 0.75, 0.5].map((width, i) => (

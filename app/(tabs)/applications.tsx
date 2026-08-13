@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Plus } from 'lucide-react-native';
+import { PlusIcon } from '@/components/ui/icons';
 import { ScreenContainer } from '@/components/layout/ScreenContainer';
 import { ScreenHeader } from '@/components/layout/ScreenHeader';
 import { ApplicationCard } from '@/components/applications/ApplicationCard';
@@ -78,7 +78,7 @@ export default function ApplicationsScreen() {
             title="New"
             size="sm"
             onPress={() => router.push('/applications/new')}
-            icon={<Plus size={16} color="#FFFFFF" />}
+            icon={<PlusIcon size={16} color="#FFFFFF" />}
           />
         }
       />

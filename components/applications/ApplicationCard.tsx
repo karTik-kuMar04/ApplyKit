@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { ChevronRight } from 'lucide-react-native';
+import { ArrowRightIcon } from '@/components/ui/icons';
 import { useColors } from '@/lib/theme';
 import { radius, spacing, typography } from '@/lib/theme/tokens';
 import { APPLICATION_STATUS_LABELS } from '@/constants';
@@ -62,7 +62,7 @@ export function ApplicationCard({ application, onPress }: ApplicationCardProps) 
           label={APPLICATION_STATUS_LABELS[application.status]}
           variant={STATUS_VARIANT[application.status]}
         />
-        <ChevronRight size={18} color={colors.textMuted} />
+        <ArrowRightIcon size={18} color={colors.textMuted} />
       </View>
     </Pressable>
   );

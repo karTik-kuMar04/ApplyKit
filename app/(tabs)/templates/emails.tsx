@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FlatList, StyleSheet, View, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Plus } from 'lucide-react-native';
+import { PlusIcon } from '@/components/ui/icons';
 import { ScreenContainer } from '@/components/layout/ScreenContainer';
 import { ScreenHeader } from '@/components/layout/ScreenHeader';
 import { TemplateCard } from '@/components/templates/TemplateCard';
@@ -68,7 +68,7 @@ export default function EmailTemplatesScreen() {
             title="New"
             size="sm"
             onPress={() => router.push('/email/template/new')}
-            icon={<Plus size={16} color="#FFFFFF" />}
+            icon={<PlusIcon size={16} color="#FFFFFF" />}
           />
         }
       />

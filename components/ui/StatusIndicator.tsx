@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Check, RefreshCw, WifiOff, AlertCircle } from 'lucide-react-native';
+import { CheckIcon, SyncIcon, WifiOffIcon, ErrorIcon } from '@/components/ui/icons';
 import { useColors } from '@/lib/theme';
 import { spacing, typography } from '@/lib/theme/tokens';
 import type { SyncStatus } from '@/types';
@@ -9,14 +9,16 @@ interface StatusIndicatorProps {
   label?: string;
 }
 
+type IconComponent = typeof CheckIcon;
+
 const STATUS_CONFIG: Record<
   SyncStatus,
-  { icon: typeof Check; colorKey: 'success' | 'accent' | 'warning' | 'error'; defaultLabel: string }
+  { icon: IconComponent; colorKey: 'success' | 'accent' | 'warning' | 'error'; defaultLabel: string }
 > = {
-  synced: { icon: Check, colorKey: 'success', defaultLabel: 'Synced' },
-  syncing: { icon: RefreshCw, colorKey: 'accent', defaultLabel: 'Syncing…' },
-  offline: { icon: WifiOff, colorKey: 'warning', defaultLabel: 'Offline' },
-  failed: { icon: AlertCircle, colorKey: 'error', defaultLabel: 'Sync failed' },
+  synced: { icon: CheckIcon, colorKey: 'success', defaultLabel: 'Synced' },
+  syncing: { icon: SyncIcon, colorKey: 'accent', defaultLabel: 'Syncing…' },
+  offline: { icon: WifiOffIcon, colorKey: 'warning', defaultLabel: 'Offline' },
+  failed: { icon: ErrorIcon, colorKey: 'error', defaultLabel: 'Sync failed' },
 };
 
 export function StatusIndicator({ status, label }: StatusIndicatorProps) {

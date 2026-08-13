@@ -8,12 +8,7 @@ import {
   Alert,
   Pressable,
 } from 'react-native';
-import {
-  PenLine,
-  Mail,
-  FileText,
-  ChevronDown,
-} from 'lucide-react-native';
+import { CoverLetterIcon, EmailIcon, ResumeIcon, ChevronDownIcon } from '@/components/ui/icons';
 import { ScreenContainer } from '@/components/layout/ScreenContainer';
 import { ScreenHeader } from '@/components/layout/ScreenHeader';
 import {
@@ -110,7 +105,7 @@ export default function ApplicationDetailScreen() {
           accessibilityLabel="Change status"
         >
           <Badge label={APPLICATION_STATUS_LABELS[app.status]} variant="accent" />
-          <ChevronDown size={16} color={colors.textMuted} />
+          <ChevronDownIcon size={16} color={colors.textMuted} />
         </Pressable>
 
         {showStatusPicker && (
@@ -151,7 +146,7 @@ export default function ApplicationDetailScreen() {
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Documents</Text>
         <Card style={styles.section}>
           <DocRow
-            icon={<FileText size={18} color={colors.accent} />}
+            icon={<ResumeIcon size={18} color={colors.accent} />}
             label="Resume"
             value={app.resumeUsed ?? 'Not attached'}
             colors={colors}
@@ -159,7 +154,7 @@ export default function ApplicationDetailScreen() {
           />
           <Divider style={{ marginVertical: spacing.sm }} />
           <DocRow
-            icon={<PenLine size={18} color={colors.accent} />}
+            icon={<CoverLetterIcon size={18} color={colors.accent} />}
             label="Cover Letter"
             value={app.coverLetterUsed ?? 'Not created'}
             colors={colors}

@@ -1,5 +1,5 @@
 import { Modal as RNModal, Pressable, StyleSheet, Text, View } from 'react-native';
-import { X } from 'lucide-react-native';
+import { CloseIcon } from '@/components/ui/icons';
 import { useColors } from '@/lib/theme';
 import { radius, shadows, spacing, typography } from '@/lib/theme/tokens';
 import { IconButton } from './IconButton';
@@ -30,7 +30,7 @@ export function Modal({ visible, onClose, title, children }: ModalProps) {
           <View style={styles.header}>
             <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
             <IconButton
-              icon={<X size={20} color={colors.textSecondary} />}
+              icon={<CloseIcon size={20} color={colors.textSecondary} />}
               onPress={onClose}
               accessibilityLabel="Close"
             />

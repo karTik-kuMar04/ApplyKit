@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Paperclip } from 'lucide-react-native';
+import { PaperclipIcon } from '@/components/ui/icons';
 import { useColors } from '@/lib/theme';
 import { radius, spacing, typography } from '@/lib/theme/tokens';
 
@@ -33,7 +33,7 @@ export function EmailPreview({ to, subject, body, attachments = [] }: EmailPrevi
             <Text style={[styles.label, { color: colors.textMuted }]}>Attachments</Text>
             {attachments.map((file) => (
               <View key={file} style={styles.attachmentRow}>
-                <Paperclip size={14} color={colors.accent} />
+                <PaperclipIcon size={14} color={colors.accent} />
                 <Text style={[styles.attachmentName, { color: colors.accent }]}>{file}</Text>
               </View>
             ))}

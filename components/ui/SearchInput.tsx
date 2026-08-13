@@ -1,5 +1,5 @@
 import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
-import { Search } from 'lucide-react-native';
+import { SearchIcon } from '@/components/ui/icons';
 import { useColors } from '@/lib/theme';
 import { componentSizes, radius, spacing, typography } from '@/lib/theme/tokens';
 
@@ -19,7 +19,7 @@ export function SearchInput({
   return (
     <View style={styles.wrapper}>
       <View style={styles.icon} pointerEvents="none">
-        <Search size={18} color={colors.textMuted} />
+        <SearchIcon size={18} color={colors.textMuted} />
       </View>
       <TextInput
         style={[

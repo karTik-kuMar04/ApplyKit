@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, View, Pressable, Text } from 'react-native';
 import { useRouter } from 'expo-router';
-import { PenLine, Mail } from 'lucide-react-native';
+import { CoverLetterIcon, EmailIcon } from '@/components/ui/icons';
 import { ScreenContainer } from '@/components/layout/ScreenContainer';
 import { ScreenHeader } from '@/components/layout/ScreenHeader';
 import { useColors } from '@/lib/theme';
@@ -21,7 +21,7 @@ export default function TemplatesScreen() {
       <View style={[styles.tabBar, { backgroundColor: colors.borderSubtle }]}>
         <TabButton
           label="Cover Letters"
-          icon={<PenLine size={16} color={activeTab === 'cover-letters' ? colors.accent : colors.textMuted} />}
+          icon={<CoverLetterIcon size={16} color={activeTab === 'cover-letters' ? colors.accent : colors.textMuted} />}
           active={activeTab === 'cover-letters'}
           onPress={() => {
             setActiveTab('cover-letters');
@@ -31,7 +31,7 @@ export default function TemplatesScreen() {
         />
         <TabButton
           label="Emails"
-          icon={<Mail size={16} color={activeTab === 'emails' ? colors.accent : colors.textMuted} />}
+          icon={<EmailIcon size={16} color={activeTab === 'emails' ? colors.accent : colors.textMuted} />}
           active={activeTab === 'emails'}
           onPress={() => {
             setActiveTab('emails');
@@ -46,7 +46,7 @@ export default function TemplatesScreen() {
           onPress={() => router.push('/(tabs)/templates/cover-letters')}
           style={[styles.link, { backgroundColor: colors.surface, borderColor: colors.border }]}
         >
-          <PenLine size={20} color={colors.accent} />
+          <CoverLetterIcon size={20} color={colors.accent} />
           <View style={styles.linkContent}>
             <Text style={[styles.linkTitle, { color: colors.text }]}>Cover Letter Templates</Text>
             <Text style={[styles.linkDesc, { color: colors.textMuted }]}>
@@ -58,7 +58,7 @@ export default function TemplatesScreen() {
           onPress={() => router.push('/(tabs)/templates/emails')}
           style={[styles.link, { backgroundColor: colors.surface, borderColor: colors.border }]}
         >
-          <Mail size={20} color={colors.accent} />
+          <EmailIcon size={20} color={colors.accent} />
           <View style={styles.linkContent}>
             <Text style={[styles.linkTitle, { color: colors.text }]}>Email Templates</Text>
             <Text style={[styles.linkDesc, { color: colors.textMuted }]}>

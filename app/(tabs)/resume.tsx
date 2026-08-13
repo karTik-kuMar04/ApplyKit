@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, Alert } from 'react-native';
-import { Share2, RefreshCw } from 'lucide-react-native';
+import { ShareIcon, SyncIcon } from '@/components/ui/icons';
 import { ScreenContainer } from '@/components/layout/ScreenContainer';
 import { ScreenHeader } from '@/components/layout/ScreenHeader';
 import { ResumePreviewPlaceholder } from '@/components/documents/ResumePreviewPlaceholder';
@@ -81,13 +81,13 @@ export default function ResumeScreen() {
           rightAction={
             <View style={styles.headerActions}>
               <IconButton
-                icon={<Share2 size={20} color={colors.textSecondary} />}
+                icon={<ShareIcon size={20} color={colors.textSecondary} />}
                 onPress={handleShare}
                 accessibilityLabel="Share resume"
                 disabled={shareAction.loading}
               />
               <IconButton
-                icon={<RefreshCw size={20} color={colors.textSecondary} />}
+                icon={<SyncIcon size={20} color={colors.textSecondary} />}
                 onPress={handleSync}
                 accessibilityLabel="Sync resume"
                 disabled={isSyncing}

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { FileText } from 'lucide-react-native';
+import { ResumeIcon } from '@/components/ui/icons';
 import { useColors } from '@/lib/theme';
 import { radius, spacing, typography } from '@/lib/theme/tokens';
 import { formatRelativeTime } from '@/utils';
@@ -30,7 +30,7 @@ export function DocumentCard({
   const content = (
     <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={[styles.iconContainer, { backgroundColor: colors.accentMuted }]}>
-        <FileText size={22} color={colors.accent} />
+        <ResumeIcon size={22} color={colors.accent} />
       </View>
       <View style={styles.content}>
         <Text style={[styles.fileName, { color: colors.text }]} numberOfLines={1}>

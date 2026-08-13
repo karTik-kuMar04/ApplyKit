@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { ChevronRight, Copy, Trash2 } from 'lucide-react-native';
+import { ArrowRightIcon, CopyIcon, DeleteIcon } from '@/components/ui/icons';
 import { useColors } from '@/lib/theme';
 import { radius, spacing, typography } from '@/lib/theme/tokens';
 import { formatRelativeTime } from '@/utils';
@@ -52,7 +52,7 @@ export function TemplateCard({
       <View style={styles.actions}>
         {onDuplicate && (
           <IconButton
-            icon={<Copy size={18} color={colors.textSecondary} />}
+            icon={<CopyIcon size={18} color={colors.textSecondary} />}
             onPress={onDuplicate}
             accessibilityLabel={`Duplicate ${name}`}
             size={36}
@@ -60,13 +60,13 @@ export function TemplateCard({
         )}
         {onDelete && (
           <IconButton
-            icon={<Trash2 size={18} color={colors.error} />}
+            icon={<DeleteIcon size={18} color={colors.error} />}
             onPress={onDelete}
             accessibilityLabel={`Delete ${name}`}
             size={36}
           />
         )}
-        <ChevronRight size={18} color={colors.textMuted} />
+        <ArrowRightIcon size={18} color={colors.textMuted} />
       </View>
     </Pressable>
   );
