@@ -1,18 +1,27 @@
-node_modules/
+# Client (Expo React Native)
+node_modules
 .expo/
 dist/
 web-build/
+
+# Keys & certs
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
 *.orig.*
+
+# Logs
 *.log
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+
+# OS
 .DS_Store
+
+# Env
 .env
 .env.local
 
