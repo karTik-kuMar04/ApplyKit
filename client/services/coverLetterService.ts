@@ -1,92 +1,117 @@
-import { mockCoverLetterTemplates } from '@/mock/coverLetterTemplates';
-import { delay, generateId, replacePlaceholders, simulateRandomFailure } from '@/utils';
-import type { CoverLetterFormData, CoverLetterTemplate, ServiceResult } from '@/types';
-
-let templates: CoverLetterTemplate[] = [...mockCoverLetterTemplates];
+import api from '@/lib/api/api';
+import { replacePlaceholders } from '@/utils';
+import type { CoverLetterFormData, CoverLetterTemplate, RenderFieldsInput, ServiceResult } from '@/types';
 
 export const coverLetterService = {
   async getTemplates(): Promise<ServiceResult<CoverLetterTemplate[]>> {
-    await delay(500);
-    if (simulateRandomFailure(0.02)) {
+    try {
+      const res = await api.get<CoverLetterTemplate[]>('/api/cover-letters');
+      const sorted = [...res.data].sort((a, b) => {
+        const timeA = new Date(a.updated_at || a.updatedAt || 0).getTime();
+        const timeB = new Date(b.updated_at || b.updatedAt || 0).getTime();
+        return timeB - timeA;
+      });
+      return {
+        success: true,
+        data: sorted,
+      };
+    } catch (error: any) {
       return {
         success: false,
-        error: { message: "Couldn't load cover letter templates." },
+        error: { message: error.response?.data?.error || error.message || "Couldn't load cover letter templates." },
       };
     }
-    return {
-      success: true,
-      data: [...templates].sort(
-        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      ),
-    };
   },
 
   async getTemplate(id: string): Promise<ServiceResult<CoverLetterTemplate>> {
-    await delay(300);
-    const template = templates.find((t) => t.id === id);
-    if (!template) {
-      return { success: false, error: { message: 'Template not found.' } };
+    try {
+      const res = await api.get<CoverLetterTemplate>(`/api/cover-letters/${id}`);
+      return { success: true, data: res.data };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: { message: error.response?.data?.error || error.message || 'Template not found.' },
+      };
     }
-    return { success: true, data: { ...template } };
   },
 
   async createTemplate(
-    data: Omit<CoverLetterTemplate, 'id' | 'updatedAt'>
+    data: { name: string; body: string; description?: string }
   ): Promise<ServiceResult<CoverLetterTemplate>> {
-    await delay(700);
-    const template: CoverLetterTemplate = {
-      ...data,
-      id: generateId('cl'),
-      updatedAt: new Date().toISOString(),
-    };
-    templates = [template, ...templates];
-    return { success: true, data: template };
+    try {
+      const res = await api.post<CoverLetterTemplate>('/api/cover-letters', {
+        name: data.name,
+        body: data.body,
+      });
+      return { success: true, data: res.data };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: { message: error.response?.data?.error || error.message || "Couldn't create template." },
+      };
+    }
   },
 
   async updateTemplate(
     id: string,
-    data: Partial<Omit<CoverLetterTemplate, 'id'>>
+    data: { name?: string; body?: string; description?: string }
   ): Promise<ServiceResult<CoverLetterTemplate>> {
-    await delay(600);
-    const index = templates.findIndex((t) => t.id === id);
-    if (index === -1) {
-      return { success: false, error: { message: 'Template not found.' } };
+    try {
+      const res = await api.put<CoverLetterTemplate>(`/api/cover-letters/${id}`, {
+        name: data.name,
+        body: data.body,
+      });
+      return { success: true, data: res.data };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: { message: error.response?.data?.error || error.message || "Couldn't update template." },
+      };
     }
-    const updated: CoverLetterTemplate = {
-      ...templates[index],
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    templates[index] = updated;
-    return { success: true, data: updated };
   },
 
   async duplicateTemplate(id: string): Promise<ServiceResult<CoverLetterTemplate>> {
-    await delay(500);
-    const original = templates.find((t) => t.id === id);
-    if (!original) {
-      return { success: false, error: { message: 'Template not found.' } };
+    try {
+      const originalRes = await api.get<CoverLetterTemplate>(`/api/cover-letters/${id}`);
+      const original = originalRes.data;
+      const res = await api.post<CoverLetterTemplate>('/api/cover-letters', {
+        name: `${original.name} (Copy)`,
+        body: original.body,
+      });
+      return { success: true, data: res.data };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: { message: error.response?.data?.error || error.message || "Couldn't duplicate template." },
+      };
     }
-    const duplicate: CoverLetterTemplate = {
-      ...original,
-      id: generateId('cl'),
-      name: `${original.name} (Copy)`,
-      updatedAt: new Date().toISOString(),
-    };
-    templates = [duplicate, ...templates];
-    return { success: true, data: duplicate };
   },
 
   async deleteTemplate(id: string): Promise<ServiceResult<void>> {
-    await delay(500);
-    if (templates.length <= 1) {
+    try {
+      await api.delete(`/api/cover-letters/${id}`);
+      return { success: true, data: undefined };
+    } catch (error: any) {
       return {
         success: false,
-        error: { message: 'You need at least one template.' },
+        error: { message: error.response?.data?.error || error.message || "Couldn't delete template." },
       };
     }
-    templates = templates.filter((t) => t.id !== id);
-    return { success: true, data: undefined };
+  },
+
+  async renderTemplate(
+    id: string,
+    fields: RenderFieldsInput
+  ): Promise<ServiceResult<{ rendered: string }>> {
+    try {
+      const res = await api.post<{ rendered: string }>(`/api/cover-letters/${id}/render`, fields);
+      return { success: true, data: res.data };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: { message: error.response?.data?.error || error.message || "Couldn't render cover letter." },
+      };
+    }
   },
 
   generatePreview(templateBody: string, formData: CoverLetterFormData): string {
@@ -98,16 +123,10 @@ export const coverLetterService = {
   },
 
   async exportPdf(): Promise<ServiceResult<{ message: string }>> {
-    await delay(1200);
     return { success: true, data: { message: 'Cover letter exported as PDF.' } };
   },
 
-  async copyToClipboard(text: string): Promise<ServiceResult<void>> {
-    await delay(200);
+  async copyToClipboard(_text: string): Promise<ServiceResult<void>> {
     return { success: true, data: undefined };
-  },
-
-  reset() {
-    templates = [...mockCoverLetterTemplates];
   },
 };

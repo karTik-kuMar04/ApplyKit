@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ResumeIcon } from '@/components/ui/icons';
 import { useColors } from '@/lib/theme';
 import { radius, spacing, typography } from '@/lib/theme/tokens';
@@ -28,9 +28,17 @@ export function DocumentCard({
   const colors = useColors();
 
   const content = (
-    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+        },
+      ]}
+    >
       <View style={[styles.iconContainer, { backgroundColor: colors.accentMuted }]}>
-        <ResumeIcon size={22} color={colors.accent} />
+        <ResumeIcon size={24} color={colors.accent} />
       </View>
       <View style={styles.content}>
         <Text style={[styles.fileName, { color: colors.text }]} numberOfLines={1}>
@@ -38,10 +46,13 @@ export function DocumentCard({
         </Text>
         <View style={styles.metaRow}>
           <Text style={[styles.meta, { color: colors.textMuted }]}>
-            {fileType.toUpperCase()}
-            {metadata ? ` · ${metadata}` : ''}
-            {updatedAt ? ` · ${formatRelativeTime(updatedAt)}` : ''}
+            {[fileType, metadata].filter(Boolean).join(' · ')}
           </Text>
+          {updatedAt && (
+            <Text style={[styles.meta, { color: colors.textMuted }]}>
+              · {formatRelativeTime(updatedAt)}
+            </Text>
+          )}
         </View>
         {syncStatus && <StatusIndicator status={syncStatus} />}
       </View>
@@ -50,13 +61,12 @@ export function DocumentCard({
   );
 
   if (onPress) {
-    const { Pressable } = require('react-native');
     return (
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={`Open ${fileName}`}
-        style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+        style={({ pressed }: { pressed: boolean }) => [{ opacity: pressed ? 0.7 : 1 }]}
       >
         {content}
       </Pressable>

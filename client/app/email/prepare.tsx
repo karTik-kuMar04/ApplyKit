@@ -101,7 +101,9 @@ export default function EmailPrepareScreen() {
               {templates.data?.map((template) => (
                 <Card key={template.id} style={styles.templateCard}>
                   <Text style={[styles.templateName, { color: colors.text }]}>{template.name}</Text>
-                  <Text style={[styles.templateDesc, { color: colors.textMuted }]}>{template.description}</Text>
+                  <Text style={[styles.templateDesc, { color: colors.textMuted }]}>
+                    {template.description || template.subject}
+                  </Text>
                   <Button
                     title="Use template"
                     size="sm"

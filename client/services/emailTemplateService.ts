@@ -1,92 +1,120 @@
-import { mockEmailTemplates } from '@/mock/emailTemplates';
-import { delay, generateId, replacePlaceholders, simulateRandomFailure } from '@/utils';
-import type { EmailFormData, EmailTemplate, ServiceResult } from '@/types';
-
-let templates: EmailTemplate[] = [...mockEmailTemplates];
+import api from '@/lib/api/api';
+import { replacePlaceholders } from '@/utils';
+import type { EmailFormData, EmailTemplate, RenderFieldsInput, ServiceResult } from '@/types';
 
 export const emailTemplateService = {
   async getTemplates(): Promise<ServiceResult<EmailTemplate[]>> {
-    await delay(500);
-    if (simulateRandomFailure(0.02)) {
+    try {
+      const res = await api.get<EmailTemplate[]>('/api/email-templates');
+      const sorted = [...res.data].sort((a, b) => {
+        const timeA = new Date(a.updated_at || a.updatedAt || 0).getTime();
+        const timeB = new Date(b.updated_at || b.updatedAt || 0).getTime();
+        return timeB - timeA;
+      });
+      return {
+        success: true,
+        data: sorted,
+      };
+    } catch (error: any) {
       return {
         success: false,
-        error: { message: "Couldn't load email templates." },
+        error: { message: error.response?.data?.error || error.message || "Couldn't load email templates." },
       };
     }
-    return {
-      success: true,
-      data: [...templates].sort(
-        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      ),
-    };
   },
 
   async getTemplate(id: string): Promise<ServiceResult<EmailTemplate>> {
-    await delay(300);
-    const template = templates.find((t) => t.id === id);
-    if (!template) {
-      return { success: false, error: { message: 'Template not found.' } };
+    try {
+      const res = await api.get<EmailTemplate>(`/api/email-templates/${id}`);
+      return { success: true, data: res.data };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: { message: error.response?.data?.error || error.message || 'Template not found.' },
+      };
     }
-    return { success: true, data: { ...template } };
   },
 
   async createTemplate(
-    data: Omit<EmailTemplate, 'id' | 'updatedAt'>
+    data: { name: string; subject: string; body: string; description?: string }
   ): Promise<ServiceResult<EmailTemplate>> {
-    await delay(700);
-    const template: EmailTemplate = {
-      ...data,
-      id: generateId('em'),
-      updatedAt: new Date().toISOString(),
-    };
-    templates = [template, ...templates];
-    return { success: true, data: template };
+    try {
+      const res = await api.post<EmailTemplate>('/api/email-templates', {
+        name: data.name,
+        subject: data.subject,
+        body: data.body,
+      });
+      return { success: true, data: res.data };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: { message: error.response?.data?.error || error.message || "Couldn't create email template." },
+      };
+    }
   },
 
   async updateTemplate(
     id: string,
-    data: Partial<Omit<EmailTemplate, 'id'>>
+    data: { name?: string; subject?: string; body?: string; description?: string }
   ): Promise<ServiceResult<EmailTemplate>> {
-    await delay(600);
-    const index = templates.findIndex((t) => t.id === id);
-    if (index === -1) {
-      return { success: false, error: { message: 'Template not found.' } };
+    try {
+      const res = await api.put<EmailTemplate>(`/api/email-templates/${id}`, {
+        name: data.name,
+        subject: data.subject,
+        body: data.body,
+      });
+      return { success: true, data: res.data };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: { message: error.response?.data?.error || error.message || "Couldn't update email template." },
+      };
     }
-    const updated: EmailTemplate = {
-      ...templates[index],
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    templates[index] = updated;
-    return { success: true, data: updated };
   },
 
   async duplicateTemplate(id: string): Promise<ServiceResult<EmailTemplate>> {
-    await delay(500);
-    const original = templates.find((t) => t.id === id);
-    if (!original) {
-      return { success: false, error: { message: 'Template not found.' } };
+    try {
+      const originalRes = await api.get<EmailTemplate>(`/api/email-templates/${id}`);
+      const original = originalRes.data;
+      const res = await api.post<EmailTemplate>('/api/email-templates', {
+        name: `${original.name} (Copy)`,
+        subject: original.subject,
+        body: original.body,
+      });
+      return { success: true, data: res.data };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: { message: error.response?.data?.error || error.message || "Couldn't duplicate email template." },
+      };
     }
-    const duplicate: EmailTemplate = {
-      ...original,
-      id: generateId('em'),
-      name: `${original.name} (Copy)`,
-      updatedAt: new Date().toISOString(),
-    };
-    templates = [duplicate, ...templates];
-    return { success: true, data: duplicate };
   },
 
   async deleteTemplate(id: string): Promise<ServiceResult<void>> {
-    await delay(500);
-    if (templates.length <= 1) {
+    try {
+      await api.delete(`/api/email-templates/${id}`);
+      return { success: true, data: undefined };
+    } catch (error: any) {
       return {
         success: false,
-        error: { message: 'You need at least one template.' },
+        error: { message: error.response?.data?.error || error.message || "Couldn't delete email template." },
       };
     }
-    templates = templates.filter((t) => t.id !== id);
-    return { success: true, data: undefined };
+  },
+
+  async renderTemplate(
+    id: string,
+    fields: RenderFieldsInput
+  ): Promise<ServiceResult<{ subject: string; body: string }>> {
+    try {
+      const res = await api.post<{ subject: string; body: string }>(`/api/email-templates/${id}/render`, fields);
+      return { success: true, data: res.data };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: { message: error.response?.data?.error || error.message || "Couldn't render email template." },
+      };
+    }
   },
 
   generatePreview(
@@ -107,14 +135,9 @@ export const emailTemplateService = {
   },
 
   async prepareEmail(): Promise<ServiceResult<{ message: string }>> {
-    await delay(1000);
     return {
       success: true,
       data: { message: 'Email prepared. Ready to open in your mail app.' },
     };
-  },
-
-  reset() {
-    templates = [...mockEmailTemplates];
   },
 };

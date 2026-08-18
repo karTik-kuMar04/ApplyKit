@@ -37,7 +37,7 @@ export default function CoverLetterTemplateEditScreen() {
 
   if (template.data && !initialized) {
     setName(template.data.name);
-    setDescription(template.data.description);
+    setDescription(template.data.description || '');
     setBody(template.data.body);
     setInitialized(true);
   }

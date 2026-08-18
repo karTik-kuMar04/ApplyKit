@@ -80,7 +80,7 @@ export default function CoverLetterTemplatesScreen() {
           <TemplateCard
             name={item.name}
             description={item.description}
-            updatedAt={item.updatedAt}
+            updatedAt={item.updated_at || item.updatedAt || ''}
             onPress={() => router.push(`/cover-letter/template/${item.id}`)}
             onDuplicate={() => handleDuplicate(item.id)}
             onDelete={() => setDeleteId(item.id)}

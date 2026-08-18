@@ -121,9 +121,11 @@ export default function CoverLetterCreateScreen() {
                   <Text style={[styles.templateName, { color: colors.text }]}>
                     {template.name}
                   </Text>
-                  <Text style={[styles.templateDesc, { color: colors.textMuted }]}>
-                    {template.description}
-                  </Text>
+                  {template.description ? (
+                    <Text style={[styles.templateDesc, { color: colors.textMuted }]}>
+                      {template.description}
+                    </Text>
+                  ) : null}
                   <Button
                     title="Use template"
                     size="sm"

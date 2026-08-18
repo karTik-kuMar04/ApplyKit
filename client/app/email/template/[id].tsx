@@ -41,7 +41,7 @@ export default function EmailTemplateEditScreen() {
 
   if (template.data && !initialized) {
     setName(template.data.name);
-    setDescription(template.data.description);
+    setDescription(template.data.description || '');
     setSubject(template.data.subject);
     setBody(template.data.body);
     setInitialized(true);

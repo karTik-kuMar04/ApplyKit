@@ -99,4 +99,4 @@ export const darkColors = {
   overlay: 'rgba(0, 0, 0, 0.6)',
 } as const;
 
-export type ColorScheme = typeof lightColors;
+export type ColorScheme = Record<keyof typeof lightColors, string>;

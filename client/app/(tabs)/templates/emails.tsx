@@ -79,8 +79,8 @@ export default function EmailTemplatesScreen() {
         renderItem={({ item }) => (
           <TemplateCard
             name={item.name}
-            description={item.description}
-            updatedAt={item.updatedAt}
+            description={item.description || item.subject}
+            updatedAt={item.updated_at || item.updatedAt || ''}
             onPress={() => router.push(`/email/template/${item.id}`)}
             onDuplicate={() => handleDuplicate(item.id)}
             onDelete={() => setDeleteId(item.id)}

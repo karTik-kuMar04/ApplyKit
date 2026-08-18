@@ -4,14 +4,15 @@ export type SyncStatus = 'synced' | 'syncing' | 'offline' | 'failed';
 
 export interface Resume {
   id: string;
-  fileName: string;
-  fileType: 'pdf';
-  updatedAt: string;
-  syncStatus: SyncStatus;
-  lastSyncedAt: string | null;
-  pageCount: number;
-  fileSize: string;
-  isCurrent: boolean;
+  original_filename: string;
+  file_path?: string;
+  fileType?: 'pdf';
+  uploaded_at: string;
+  syncStatus?: SyncStatus;
+  lastSyncedAt?: string | null;
+  pageCount?: number;
+  size_bytes: number | string;
+  isCurrent?: boolean;
 }
 
 export type ApplicationStatus =
@@ -40,21 +41,41 @@ export interface Application {
   updatedAt: string;
 }
 
+export interface ResumeMeta {
+  id: string;
+  file_path: string;
+  original_filename: string;
+  uploaded_at: string;
+  size_bytes: number;
+}
+
 export interface CoverLetterTemplate {
   id: string;
   name: string;
-  description: string;
   body: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
+  description?: string;
+  updatedAt?: string;
 }
 
 export interface EmailTemplate {
   id: string;
   name: string;
-  description: string;
   subject: string;
   body: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
+  description?: string;
+  updatedAt?: string;
+}
+
+export interface RenderFieldsInput {
+  company?: string;
+  role?: string;
+  hiring_manager?: string;
+  candidate_name?: string;
+  [key: string]: string | undefined;
 }
 
 export type ActivityType =

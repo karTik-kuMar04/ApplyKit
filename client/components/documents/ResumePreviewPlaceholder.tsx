@@ -4,11 +4,11 @@ import { radius, spacing, typography } from '@/lib/theme/tokens';
 import { ResumeIcon } from '@/components/ui/icons';
 
 interface ResumePreviewPlaceholderProps {
-  fileName: string;
+  original_filename: string;
   pageCount: number;
 }
 
-export function ResumePreviewPlaceholder({ fileName, pageCount }: ResumePreviewPlaceholderProps) {
+export function ResumePreviewPlaceholder({ original_filename, pageCount }: ResumePreviewPlaceholderProps) {
   const colors = useColors();
 
   return (
@@ -26,7 +26,7 @@ export function ResumePreviewPlaceholder({ fileName, pageCount }: ResumePreviewP
           ))}
         </View>
         <Text style={[styles.label, { color: colors.textMuted }]} numberOfLines={1}>
-          {fileName}
+          {original_filename}
         </Text>
       </View>
       {pageCount > 1 && (

@@ -1,78 +1,58 @@
-import { mockResume } from '@/mock/resume';
-import { delay, generateId, simulateRandomFailure } from '@/utils';
-import type { Resume, ServiceResult, SyncStatus } from '@/types';
-
-let currentResume: Resume = { ...mockResume };
-let forceOffline = false;
-let forceSyncFail = false;
+import api from '@/lib/api/api';
+import type { Resume, ServiceResult } from '@/types';
 
 export const resumeService = {
   async getResume(): Promise<ServiceResult<Resume>> {
-    await delay(600);
-    if (forceOffline) {
+    try {
+      const res = await api.get<Resume>('/api/resume/meta');
       return {
         success: true,
-        data: { ...currentResume, syncStatus: 'offline' },
+        data: {
+          ...res.data,
+          syncStatus: 'synced',
+          lastSyncedAt: new Date().toISOString(),
+          isCurrent: true,
+        },
       };
-    }
-    if (simulateRandomFailure(0.02)) {
+    } catch (error: any) {
       return {
         success: false,
-        error: { message: "Couldn't load your resume. Check your connection and try again." },
+        error: {
+          message: error.response?.data?.error || error.message || "Couldn't load your resume. Check your connection and try again.",
+        },
       };
     }
-    return { success: true, data: { ...currentResume } };
+  },
+
+  async getResumeUrl(): Promise<ServiceResult<{ url: string }>> {
+    try {
+      const res = await api.get<{ url: string }>('/api/resume/url');
+      return { success: true, data: res.data };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: {
+          message: error.response?.data?.error || error.message || "Couldn't retrieve resume download URL.",
+        },
+      };
+    }
   },
 
   async syncResume(): Promise<ServiceResult<Resume>> {
-    currentResume = { ...currentResume, syncStatus: 'syncing' };
-    await delay(2000);
-
-    if (forceSyncFail || simulateRandomFailure(0.08)) {
-      currentResume = { ...currentResume, syncStatus: 'failed' };
-      return {
-        success: false,
-        error: { message: "Couldn't sync your resume. Your cached copy is still available." },
-      };
-    }
-
-    if (forceOffline) {
-      currentResume = { ...currentResume, syncStatus: 'offline' };
-      return {
-        success: true,
-        data: { ...currentResume },
-      };
-    }
-
-    const now = new Date().toISOString();
-    currentResume = {
-      ...currentResume,
-      syncStatus: 'synced' as SyncStatus,
-      lastSyncedAt: now,
-      updatedAt: now,
-    };
-    return { success: true, data: { ...currentResume } };
+    return this.getResume();
   },
 
-  async shareResume(): Promise<ServiceResult<{ message: string }>> {
-    await delay(400);
+  async shareResume(): Promise<ServiceResult<{ message: string; url?: string }>> {
+    const urlResult = await this.getResumeUrl();
+    if (urlResult.success) {
+      return {
+        success: true,
+        data: { message: 'Resume link ready to share.', url: urlResult.data.url },
+      };
+    }
     return {
       success: true,
       data: { message: 'Resume shared successfully.' },
     };
-  },
-
-  setForceOffline(value: boolean) {
-    forceOffline = value;
-  },
-
-  setForceSyncFail(value: boolean) {
-    forceSyncFail = value;
-  },
-
-  reset() {
-    currentResume = { ...mockResume };
-    forceOffline = false;
-    forceSyncFail = false;
   },
 };

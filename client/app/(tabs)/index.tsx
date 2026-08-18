@@ -25,6 +25,11 @@ export default function HomeScreen() {
 
   const resume = useAsyncData(() => resumeService.getResume(), []);
   const activity = useAsyncData(() => applicationService.getActivity(), []);
+
+  const sizeKB = resume.data?.size_bytes
+    ? (Number(resume.data.size_bytes) / 1024).toFixed(1) + ' KB'
+    : '';
+
   const overview = applicationService.getOverview();
 
   if (resume.loading && !resume.data) {
@@ -50,18 +55,24 @@ export default function HomeScreen() {
 
         <View style={styles.section}>
           <SectionHeader title="Resume" />
+
           {resume.error ? (
-            <ErrorState message={resume.error} onRetry={resume.refetch} />
+            <ErrorState
+              message={resume.error}
+              onRetry={resume.refetch}
+            />
           ) : resume.data ? (
             <DocumentCard
-              fileName={resume.data.fileName}
-              fileType={resume.data.fileType}
-              updatedAt={resume.data.updatedAt}
-              syncStatus={resume.data.syncStatus}
-              metadata={resume.data.fileSize}
+              fileName={resume.data.original_filename}
+              updatedAt={resume.data.uploaded_at}
+              metadata={sizeKB}
               onPress={() => router.push('/(tabs)/resume')}
             />
-          ) : null}
+          ) : (
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>
+              No resume uploaded
+            </Text>
+          )}
         </View>
 
         <View style={styles.section}>

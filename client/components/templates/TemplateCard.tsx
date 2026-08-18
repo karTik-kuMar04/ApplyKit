@@ -7,7 +7,7 @@ import { IconButton } from '@/components/ui';
 
 interface TemplateCardProps {
   name: string;
-  description: string;
+  description?: string;
   updatedAt: string;
   onPress: () => void;
   onDuplicate?: () => void;
@@ -42,9 +42,11 @@ export function TemplateCard({
         <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
           {name}
         </Text>
-        <Text style={[styles.description, { color: colors.textMuted }]} numberOfLines={2}>
-          {description}
-        </Text>
+        {description ? (
+          <Text style={[styles.description, { color: colors.textMuted }]} numberOfLines={2}>
+            {description}
+          </Text>
+        ) : null}
         <Text style={[styles.updated, { color: colors.textMuted }]}>
           Updated {formatRelativeTime(updatedAt)}
         </Text>

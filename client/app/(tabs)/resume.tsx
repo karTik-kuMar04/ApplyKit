@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, Alert } from 'react-native';
 import { ShareIcon, SyncIcon } from '@/components/ui/icons';
 import { ScreenContainer } from '@/components/layout/ScreenContainer';
@@ -18,28 +17,28 @@ import { formatRelativeTime, formatDate } from '@/utils';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { resumeService } from '@/services';
-import type { Resume } from '@/types';
 
 export default function ResumeScreen() {
   const colors = useColors();
-  const [localResume, setLocalResume] = useState<Resume | null>(null);
+  const { data: resume, loading, error, refetch } = useAsyncData(
+    () => resumeService.getResume(),
+    []
+  );
 
-  const resume = useAsyncData(async () => {
-    const result = await resumeService.getResume();
-    if (result.success) setLocalResume(result.data);
+  const syncAction = useAsyncAction(async () => {
+    const result = await resumeService.syncResume();
+    if (result.success) {
+      refetch();
+    }
     return result;
-  }, []);
+  });
 
-  const syncAction = useAsyncAction(() => resumeService.syncResume());
   const shareAction = useAsyncAction(() => resumeService.shareResume());
-
-  const current = localResume ?? resume.data;
 
   const handleSync = async () => {
     const result = await syncAction.execute();
     if (result) {
-      setLocalResume(result);
-      resume.refetch();
+      Alert.alert('Synced', 'Resume is up to date.');
     }
   };
 
@@ -50,7 +49,11 @@ export default function ResumeScreen() {
     }
   };
 
-  if (resume.loading && !current) {
+  const sizeKB = resume?.size_bytes
+    ? (Number(resume.size_bytes) / 1024).toFixed(1) + ' KB'
+    : '';
+
+  if (loading && !resume) {
     return (
       <ScreenContainer>
         <LoadingState message="Loading resume…" />
@@ -58,16 +61,16 @@ export default function ResumeScreen() {
     );
   }
 
-  if (resume.error && !current) {
+  if (error && !resume) {
     return (
       <ScreenContainer>
-        <ErrorState message={resume.error} onRetry={resume.refetch} />
+        <ErrorState message={error} onRetry={refetch} />
       </ScreenContainer>
     );
   }
 
-  const isSyncing = current?.syncStatus === 'syncing' || syncAction.loading;
-  const displayStatus = isSyncing ? 'syncing' : current?.syncStatus ?? 'synced';
+  const isSyncing = syncAction.loading;
+  const displayStatus = isSyncing ? 'syncing' : (resume?.syncStatus ?? 'synced');
 
   return (
     <ScreenContainer>
@@ -96,11 +99,11 @@ export default function ResumeScreen() {
           }
         />
 
-        {current && (
+        {resume && (
           <>
             <ResumePreviewPlaceholder
-              fileName={current.fileName}
-              pageCount={current.pageCount}
+              original_filename={resume.original_filename}
+              pageCount={resume.pageCount || 2}
             />
 
             <Card style={styles.metaCard}>
@@ -112,52 +115,31 @@ export default function ResumeScreen() {
               </View>
 
               <Text style={[styles.fileName, { color: colors.text }]}>
-                {current.fileName}
+                {resume.original_filename}
               </Text>
 
               <View style={styles.metaRow}>
                 <Text style={[styles.meta, { color: colors.textMuted }]}>
-                  PDF · {current.fileSize} · {current.pageCount} pages
+                  PDF · {sizeKB} · {resume.pageCount || 2} pages
                 </Text>
               </View>
 
               <View style={styles.metaRow}>
                 <Text style={[styles.meta, { color: colors.textMuted }]}>
-                  Updated {formatDate(current.updatedAt)}
+                  Updated {formatDate(resume.uploaded_at)}
                 </Text>
               </View>
 
               <StatusIndicator
                 status={displayStatus}
                 label={
-                  displayStatus === 'synced' && current.lastSyncedAt
-                    ? `Synced ${formatRelativeTime(current.lastSyncedAt)}`
+                  displayStatus === 'synced' && resume.lastSyncedAt
+                    ? `Synced ${formatRelativeTime(resume.lastSyncedAt)}`
+                    : displayStatus === 'syncing'
+                    ? 'Syncing...'
                     : undefined
                 }
               />
-
-              {displayStatus === 'offline' && (
-                <View style={[styles.offlineBanner, { backgroundColor: colors.warningMuted }]}>
-                  <Text style={[styles.offlineText, { color: colors.warning }]}>
-                    You're offline. Showing your most recently cached resume.
-                  </Text>
-                </View>
-              )}
-
-              {displayStatus === 'failed' && (
-                <View style={[styles.offlineBanner, { backgroundColor: colors.errorMuted }]}>
-                  <Text style={[styles.offlineText, { color: colors.error }]}>
-                    Couldn't sync your resume. Your cached copy is still available.
-                  </Text>
-                  <Button
-                    title="Retry sync"
-                    variant="secondary"
-                    size="sm"
-                    onPress={handleSync}
-                    loading={isSyncing}
-                  />
-                </View>
-              )}
 
               {syncAction.error && (
                 <Text style={[styles.errorText, { color: colors.error }]}>
@@ -221,14 +203,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   meta: {
-    ...typography.caption,
-  },
-  offlineBanner: {
-    padding: spacing.md,
-    borderRadius: 8,
-    gap: spacing.sm,
-  },
-  offlineText: {
     ...typography.caption,
   },
   errorText: {
