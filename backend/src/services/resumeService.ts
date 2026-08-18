@@ -79,13 +79,19 @@ export async function getResumeMeta(logger: BaseLogger = defaultLogger): Promise
 // Signed URL — the app fetches this and downloads directly from Supabase,
 // so the resume bytes never have to round-trip through this server.
 export async function getResumeDownloadUrl(
+  download?: boolean | string,
   logger: BaseLogger = defaultLogger
 ): Promise<string> {
-  logger.debug({ file_path: CURRENT_RESUME_PATH }, 'Generating signed URL for resume download');
+  logger.debug({ file_path: CURRENT_RESUME_PATH, download }, 'Generating signed URL for resume download');
+
+  const options: { download?: boolean | string } = {};
+  if (download !== undefined) {
+    options.download = download;
+  }
 
   const { data, error } = await supabase.storage
     .from(env.resumeBucket)
-    .createSignedUrl(CURRENT_RESUME_PATH, 60 * 10); // 10 minute expiry
+    .createSignedUrl(CURRENT_RESUME_PATH, 60 * 10, options); // 10 minute expiry
 
   if (error || !data) {
     logger.error({ err: error }, 'Failed to generate signed download URL');

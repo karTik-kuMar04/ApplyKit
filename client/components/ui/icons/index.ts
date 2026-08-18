@@ -19,3 +19,4 @@ export { ErrorIcon } from './ErrorIcon';
 export { CheckIcon } from './CheckIcon';
 export { WifiOffIcon } from './WifiOffIcon';
 export { PaperclipIcon } from './PaperclipIcon';
+export { DownloadIcon } from './DownloadIcon';

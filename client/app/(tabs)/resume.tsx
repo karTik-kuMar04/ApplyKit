@@ -1,8 +1,19 @@
-import { ScrollView, StyleSheet, Text, View, Alert } from 'react-native';
-import { ShareIcon, SyncIcon } from '@/components/ui/icons';
+import { useState } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
+import { DownloadIcon, ShareIcon, SyncIcon } from '@/components/ui/icons';
 import { ScreenContainer } from '@/components/layout/ScreenContainer';
 import { ScreenHeader } from '@/components/layout/ScreenHeader';
-import { ResumePreviewPlaceholder } from '@/components/documents/ResumePreviewPlaceholder';
+import {
+  ResumePdfViewer,
+  ResumeFullScreenModal,
+} from '@/components/documents';
 import {
   Card,
   Button,
@@ -12,7 +23,7 @@ import {
   IconButton,
 } from '@/components/ui';
 import { useColors } from '@/lib/theme';
-import { spacing, typography } from '@/lib/theme/tokens';
+import { radius, spacing, typography } from '@/lib/theme/tokens';
 import { formatRelativeTime, formatDate } from '@/utils';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
@@ -20,20 +31,44 @@ import { resumeService } from '@/services';
 
 export default function ResumeScreen() {
   const colors = useColors();
-  const { data: resume, loading, error, refetch } = useAsyncData(
-    () => resumeService.getResume(),
-    []
-  );
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
+  // 1. Fetch metadata from GET /api/resume/meta
+  const {
+    data: resume,
+    loading: metaLoading,
+    error: metaError,
+    refetch: refetchMeta,
+  } = useAsyncData(() => resumeService.getResume(), []);
+
+  // 2. Fetch signed temporary PDF download URL from GET /api/resume/url
+  const {
+    data: urlData,
+    loading: urlLoading,
+    error: urlError,
+    refetch: refetchUrl,
+  } = useAsyncData(() => resumeService.getResumeUrl(), []);
+
+  // Sync action refreshes both metadata and the temporary signed URL
   const syncAction = useAsyncAction(async () => {
     const result = await resumeService.syncResume();
     if (result.success) {
-      refetch();
+      refetchMeta();
+      refetchUrl();
     }
     return result;
   });
 
   const shareAction = useAsyncAction(() => resumeService.shareResume());
+
+  const downloadAction = useAsyncAction(async () => {
+    const filename = resume?.original_filename || 'resume.pdf';
+    return resumeService.downloadResume(filename);
+  });
+
+  const handleDownload = async () => {
+    await downloadAction.execute();
+  };
 
   const handleSync = async () => {
     const result = await syncAction.execute();
@@ -53,7 +88,10 @@ export default function ResumeScreen() {
     ? (Number(resume.size_bytes) / 1024).toFixed(1) + ' KB'
     : '';
 
-  if (loading && !resume) {
+  const initialLoading = (metaLoading || urlLoading) && !resume && !urlData;
+  const initialError = metaError || urlError;
+
+  if (initialLoading) {
     return (
       <ScreenContainer>
         <LoadingState message="Loading resume…" />
@@ -61,10 +99,16 @@ export default function ResumeScreen() {
     );
   }
 
-  if (error && !resume) {
+  if (initialError && !resume) {
     return (
       <ScreenContainer>
-        <ErrorState message={error} onRetry={refetch} />
+        <ErrorState
+          message={initialError}
+          onRetry={() => {
+            refetchMeta();
+            refetchUrl();
+          }}
+        />
       </ScreenContainer>
     );
   }
@@ -84,6 +128,12 @@ export default function ResumeScreen() {
           rightAction={
             <View style={styles.headerActions}>
               <IconButton
+                icon={<DownloadIcon size={20} color={colors.textSecondary} />}
+                onPress={handleDownload}
+                accessibilityLabel="Download resume"
+                disabled={downloadAction.loading || !urlData?.url}
+              />
+              <IconButton
                 icon={<ShareIcon size={20} color={colors.textSecondary} />}
                 onPress={handleShare}
                 accessibilityLabel="Share resume"
@@ -99,13 +149,42 @@ export default function ResumeScreen() {
           }
         />
 
-        {resume && (
-          <>
-            <ResumePreviewPlaceholder
-              original_filename={resume.original_filename}
-              pageCount={resume.pageCount || 2}
+        {/* In-app PDF Preview Container with full screen trigger */}
+        {urlData?.url ? (
+          <View style={styles.previewWrapper}>
+            <ResumePdfViewer
+              url={urlData.url}
+              original_filename={resume?.original_filename}
+              height={380}
+              onRetry={refetchUrl}
             />
 
+            {/* Click to open full screen overlay button */}
+            <TouchableOpacity
+              style={[
+                styles.fullScreenButton,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
+              onPress={() => setIsFullScreen(true)}
+              activeOpacity={0.85}
+              accessibilityLabel="Open resume in full screen"
+            >
+              <Text style={[styles.fullScreenButtonText, { color: colors.text }]}>
+                ⛶ Open Full Screen
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : urlLoading ? (
+          <LoadingState message="Fetching signed PDF link..." />
+        ) : (
+          <ErrorState
+            message={urlError || "Couldn't load resume URL."}
+            onRetry={refetchUrl}
+          />
+        )}
+
+        {resume && (
+          <>
             <Card style={styles.metaCard}>
               <View style={styles.currentBadge}>
                 <View style={[styles.currentDot, { backgroundColor: colors.success }]} />
@@ -150,22 +229,42 @@ export default function ResumeScreen() {
 
             <View style={styles.actions}>
               <Button
-                title="Sync Resume"
-                onPress={handleSync}
-                loading={isSyncing}
+                title="Open Full Screen"
+                variant="primary"
+                onPress={() => setIsFullScreen(true)}
+                disabled={!urlData?.url}
                 fullWidth
               />
               <Button
-                title="Share"
+                title="Download PDF"
                 variant="secondary"
-                onPress={handleShare}
-                loading={shareAction.loading}
+                onPress={handleDownload}
+                loading={downloadAction.loading}
+                disabled={!urlData?.url}
+                fullWidth
+              />
+              <Button
+                title="Sync Resume"
+                variant="secondary"
+                onPress={handleSync}
+                loading={isSyncing}
                 fullWidth
               />
             </View>
           </>
         )}
       </ScrollView>
+
+      {/* Full Screen In-App PDF Modal with Close & Download buttons */}
+      {urlData?.url && (
+        <ResumeFullScreenModal
+          visible={isFullScreen}
+          onClose={() => setIsFullScreen(false)}
+          url={urlData.url}
+          filename={resume?.original_filename}
+          onRetry={refetchUrl}
+        />
+      )}
     </ScreenContainer>
   );
 }
@@ -178,6 +277,29 @@ const styles = StyleSheet.create({
   headerActions: {
     flexDirection: 'row',
     gap: spacing.xs,
+  },
+  previewWrapper: {
+    position: 'relative',
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+  },
+  fullScreenButton: {
+    position: 'absolute',
+    bottom: spacing.md,
+    right: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs + 2,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  fullScreenButtonText: {
+    ...typography.caption,
+    fontWeight: '600',
   },
   metaCard: {
     gap: spacing.md,

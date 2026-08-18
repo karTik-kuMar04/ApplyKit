@@ -20,6 +20,15 @@ export const getResumeMeta = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const getResumeUrl = asyncHandler(async (req: Request, res: Response) => {
-  const url = await resumeService.getResumeDownloadUrl(req.log);
+  const downloadParam = req.query.download;
+  const download =
+    typeof downloadParam === 'string'
+      ? downloadParam === 'true'
+        ? true
+        : downloadParam
+      : undefined;
+
+  const url = await resumeService.getResumeDownloadUrl(download, req.log);
   res.json({ url });
 });
+

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useColors } from '@/lib/theme';
 import { radius, spacing, typography } from '@/lib/theme/tokens';
 import { ResumeIcon } from '@/components/ui/icons';
@@ -6,16 +6,28 @@ import { ResumeIcon } from '@/components/ui/icons';
 interface ResumePreviewPlaceholderProps {
   original_filename: string;
   pageCount: number;
+  onPress?: () => void;
 }
 
-export function ResumePreviewPlaceholder({ original_filename, pageCount }: ResumePreviewPlaceholderProps) {
+export function ResumePreviewPlaceholder({
+  original_filename,
+  pageCount,
+  onPress,
+}: ResumePreviewPlaceholderProps) {
   const colors = useColors();
 
-  return (
+  const content = (
     <View style={[styles.container, { backgroundColor: colors.borderSubtle, borderColor: colors.border }]}>
       <View style={[styles.page, { backgroundColor: colors.surface }]}>
-        <View style={[styles.header, { backgroundColor: colors.accentMuted }]}>
-          <ResumeIcon size={24} color={colors.accent} />
+        <View style={styles.topBar}>
+          <View style={[styles.header, { backgroundColor: colors.accentMuted }]}>
+            <ResumeIcon size={24} color={colors.accent} />
+          </View>
+          {onPress && (
+            <View style={[styles.badge, { backgroundColor: colors.accentMuted }]}>
+              <Text style={[styles.badgeText, { color: colors.accent }]}>Tap to open PDF</Text>
+            </View>
+          )}
         </View>
         <View style={styles.lines}>
           {[0.9, 0.7, 0.85, 0.6, 0.75, 0.5].map((width, i) => (
@@ -36,6 +48,21 @@ export function ResumePreviewPlaceholder({ original_filename, pageCount }: Resum
       )}
     </View>
   );
+
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`Open ${original_filename}`}
+        style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}
+      >
+        {content}
+      </Pressable>
+    );
+  }
+
+  return content;
 }
 
 const styles = StyleSheet.create({
@@ -54,12 +81,26 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     maxHeight: 360,
   },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   header: {
     width: 48,
     height: 48,
     borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  badge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: radius.full,
+  },
+  badgeText: {
+    ...typography.caption,
+    fontWeight: '600',
   },
   lines: {
     flex: 1,
