@@ -46,6 +46,12 @@
         "projectId": "7a13a346-3a18-4ed2-a736-d7e5c70bef87"
       }
     },
-    "owner": "devycarteeks-team"
+    "owner": "devycarteeks-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/7a13a346-3a18-4ed2-a736-d7e5c70bef87"
+    }
   }
 }
