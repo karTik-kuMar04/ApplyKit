@@ -12,6 +12,7 @@ function required(key: string): string {
 
 export const env = {
   port: parseInt(process.env.PORT ?? '4000', 10),
+  WEB_URL: process.env.WEB_URL,
   nodeEnv: process.env.NODE_ENV ?? 'development',
   supabaseUrl: required('SUPABASE_URL'),
   // Service role key — server-side only, bypasses RLS. Never expose this to the Expo app.

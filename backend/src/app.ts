@@ -33,7 +33,22 @@ app.use(
   })
 );
 
-app.use(cors({ origin: env.corsOrigin }));
+const allowedOrigin = [
+  env.WEB_URL,
+];
+
+app.use(cors({ 
+  origin: (origin, callback) => {
+    // Native app may send no Original headers
+    if(!origin){
+      return callback(null, true);
+    }
+    if (allowedOrigin.includes(origin)){
+      return callback(null, true);
+    }
+    callback(new Error("Not allowed by CORS"));
+  }
+}));
 app.use(express.json());
 
 app.get('/', (_req: Request, res: Response) => {
