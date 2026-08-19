@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Career OS",
-    "slug": "career-os",
+    "slug": "carteek",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.careeros.app"
+      "bundleIdentifier": "com.careeros.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -36,6 +39,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7a13a346-3a18-4ed2-a736-d7e5c70bef87"
+      }
+    },
+    "owner": "devycarteeks-team"
   }
 }
